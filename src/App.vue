@@ -1,10 +1,178 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+// import { RouterLink, RouterView } from 'vue-router'
+// import HelloWorld from './components/HelloWorld.vue'
+import WhatUGotView from './components/WhatUGotView.vue';
+
+import { onMounted, ref } from 'vue'
+
+const base_fruits = [
+  {
+    img: '/apple1.jpeg',
+    name: 'apple1'
+  },
+  {
+    img: '/pear.jpg',
+    name: 'pear'
+  },
+  {
+    img: '/banana.jpg',
+    name: 'banana'
+  },
+  {
+    img: '/apple2.jpeg',
+    name: 'apple2'
+  }
+]
+
+function randomIntFromInterval(min, max) {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+const pickRandomFruit = () => {
+  return base_fruits[randomIntFromInterval(0, base_fruits.length - 1)]
+}
+
+const generateFruits = (n) => {
+  const fruits = []
+  while (n) {
+    fruits.push(pickRandomFruit())
+    n--
+  }
+  return fruits
+}
+
+const dataScroll_1 = ref([])
+
+const dataScroll_2 = ref([])
+
+const dataScroll_3 = ref([])
+
+const transX_1 = ref(0)
+const transX_2 = ref(0)
+const transX_3 = ref(0)
+
+const showWhatUGot = ref(false)
+
+const whatUGot = ref([])
+
+const STEP_WIDTH = 100
+
+// const scrollToIdx = ({
+//   dataArr, targetIdx, time, transX
+// })=>{
+//   const maxWidth = STEP_WIDTH* dataArr.length;
+//   const targetX = targetIdx * STEP_WIDTH;
+
+// }
+
+const scrollToIdx = ({ dataArr, targetIdx, time, transX }) => {
+  const maxWidth = STEP_WIDTH * dataArr.value.length
+  console.log('maxWidth', maxWidth)
+  const targetX = targetIdx * STEP_WIDTH
+  // use a quadratic easing function to calculate the transX value // https://easings.net/#easeOutQuad
+  const easeOutQuad = (t, b, c, d) => {
+    t /= d
+    return -c * t * (t - 2) + b
+  }
+  // use requestAnimationFrame to animate the transX value
+  // https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+  let startTime = null
+  const animate = (timestamp) => {
+    console.log('animate')
+    if (!startTime) startTime = timestamp
+    let elapsed = timestamp - startTime
+    if (elapsed > time * 1000) elapsed = time * 1000
+    // limit the elapsed time to the given time
+    transX.value = easeOutQuad(elapsed, 0, targetX, time * 1000)
+
+    console.log('transX', transX.value, maxWidth)
+
+    // update the transX value
+    if (transX.value < targetX) {
+      requestAnimationFrame(animate)
+      // continue the animation
+    }
+  }
+  requestAnimationFrame(animate) // start the animation
+}
+
+const onClickStart = () => {
+  console.log('onClickStart')
+  let time = 6
+  scrollToIdx({
+    dataArr: dataScroll_1,
+    targetIdx: 150,
+    time,
+    transX: transX_1
+  })
+  scrollToIdx({
+    dataArr: dataScroll_2,
+    targetIdx: 120,
+    time,
+    transX: transX_2
+  })
+  scrollToIdx({
+    dataArr: dataScroll_3,
+    targetIdx: 170,
+    time,
+    transX: transX_3
+  })
+
+  whatUGot.value = [dataScroll_1.value[150], dataScroll_2.value[120], dataScroll_3.value[170]]
+  setTimeout(() => {
+    showWhatUGot.value = true
+  }, time * 1000 + 1000*2)
+}
+
+onMounted(() => {
+  dataScroll_1.value = generateFruits(299)
+  dataScroll_2.value = generateFruits(299)
+  dataScroll_3.value = generateFruits(299)
+})
 </script>
 
 <template>
-  <header>
+  <div class="container-main">
+    <div class="game-box">
+      <div class="center-box"></div>
+      <div class="scroll-container-c scroll-container-1">
+        <div class="fruits-horizontal" :style="{ transform: `translateX(-${transX_1}px)` }">
+          <img
+            class="scroll-item"
+            :src="item.img"
+            alt=""
+            v-for="(item, idx) in dataScroll_1"
+            :key="idx"
+          />
+        </div>
+      </div>
+      <div class="scroll-container-c scroll-container-2">
+        <div class="fruits-horizontal" :style="{ transform: `translateX(-${transX_2}px)` }">
+          <img
+            class="scroll-item"
+            :src="item.img"
+            alt=""
+            v-for="(item, idx) in dataScroll_2"
+            :key="idx"
+          />
+        </div>
+      </div>
+      <div class="scroll-container-c scroll-container-3">
+        <div class="fruits-horizontal" :style="{ transform: `translateX(-${transX_3}px)` }">
+          <img
+            class="scroll-item"
+            :src="item.img"
+            alt=""
+            v-for="(item, idx) in dataScroll_3"
+            :key="idx"
+          />
+        </div>
+      </div>
+    </div>
+    <button class="start-btn" @click="onClickStart()">开始抽奖</button>
+  </div>
+  <!-- <header>
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
     <div class="wrapper">
@@ -17,69 +185,50 @@ import HelloWorld from './components/HelloWorld.vue'
     </div>
   </header>
 
-  <RouterView />
+  <RouterView /> -->
+
+  <WhatUGotView :whatUGot="whatUGot" :showWhatUGot="showWhatUGot" @ok-click="showWhatUGot= false" />
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
+<style scoped lang="less">
+.container-main {
   text-align: center;
-  margin-top: 2rem;
+}
+.game-box {
+  // border: 1px solid rgba(0, 0, 0, 0.5);
+  outline: 1px solid rgba(0, 0, 0, 0.5);
+  width: 700px;
+  margin: 0 auto;
+  position: relative;
+}
+.scroll-item {
+  width: 100px;
+  height: 100px;
+}
+.scroll-container-c {
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+.start-btn {
+  margin-top: 30px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
+.fruits-horizontal {
+  height: 100px;
+  width: max-content;
 }
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.center-box {
+  position: absolute;
+  width: 100px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 0, 0, 0.5);
+  z-index: 99;
 }
 </style>
