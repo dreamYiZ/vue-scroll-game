@@ -96,40 +96,58 @@ const scrollToIdx = ({ dataArr, targetIdx, time, transX }) => {
   }
   requestAnimationFrame(animate) // start the animation
 }
-
-const onClickStart = () => {
-  console.log('onClickStart')
-  let time = 6
-  scrollToIdx({
-    dataArr: dataScroll_1,
-    targetIdx: 150,
-    time,
-    transX: transX_1
-  })
-  scrollToIdx({
-    dataArr: dataScroll_2,
-    targetIdx: 120,
-    time,
-    transX: transX_2
-  })
-  scrollToIdx({
-    dataArr: dataScroll_3,
-    targetIdx: 170,
-    time,
-    transX: transX_3
-  })
-
-  whatUGot.value = [dataScroll_1.value[150], dataScroll_2.value[120], dataScroll_3.value[170]]
-  setTimeout(() => {
-    showWhatUGot.value = true
-  }, time * 1000 + 1000*2)
-}
-
 onMounted(() => {
+  // 最开始生成水果
   dataScroll_1.value = generateFruits(299)
   dataScroll_2.value = generateFruits(299)
   dataScroll_3.value = generateFruits(299)
+
+
+  console.log('dataScroll_1.value', dataScroll_1.value)
+  console.log('dataScroll_2.value', dataScroll_2.value)
+  console.log('dataScroll_3.value', dataScroll_3.value)
 })
+const onClickStart = () => {
+  console.log('onClickStart')
+  let time = 1
+
+  // 滚动到目标位置
+  scrollToIdx({
+    dataArr: dataScroll_1,
+
+    time,
+    transX: transX_1,
+    targetIdx: 152, // 第多少个
+  })
+
+  // 滚动到目标位置 2
+
+  scrollToIdx({
+    dataArr: dataScroll_2,
+
+    time,
+    transX: transX_2,
+    targetIdx: 152, // 第多少个
+  })
+
+  // 滚动到目标位置 3行
+
+  scrollToIdx({
+    dataArr: dataScroll_3,
+
+    time,
+    transX: transX_3,
+    targetIdx: 152,  // 第多少个
+  })
+
+  // z最后显示的水果
+  whatUGot.value = [dataScroll_1.value[155], dataScroll_2.value[155], dataScroll_3.value[155]]
+  setTimeout(() => {
+    showWhatUGot.value = true
+  }, time * 1000 + 1000 * 1)
+}
+
+
 </script>
 
 <template>
@@ -138,35 +156,17 @@ onMounted(() => {
       <div class="center-box"></div>
       <div class="scroll-container-c scroll-container-1">
         <div class="fruits-horizontal" :style="{ transform: `translateX(-${transX_1}px)` }">
-          <img
-            class="scroll-item"
-            :src="item.img"
-            alt=""
-            v-for="(item, idx) in dataScroll_1"
-            :key="idx"
-          />
+          <img class="scroll-item" :src="item.img" alt="" v-for="(item, idx) in dataScroll_1" :key="idx" />
         </div>
       </div>
       <div class="scroll-container-c scroll-container-2">
         <div class="fruits-horizontal" :style="{ transform: `translateX(-${transX_2}px)` }">
-          <img
-            class="scroll-item"
-            :src="item.img"
-            alt=""
-            v-for="(item, idx) in dataScroll_2"
-            :key="idx"
-          />
+          <img class="scroll-item" :src="item.img" alt="" v-for="(item, idx) in dataScroll_2" :key="idx" />
         </div>
       </div>
       <div class="scroll-container-c scroll-container-3">
         <div class="fruits-horizontal" :style="{ transform: `translateX(-${transX_3}px)` }">
-          <img
-            class="scroll-item"
-            :src="item.img"
-            alt=""
-            v-for="(item, idx) in dataScroll_3"
-            :key="idx"
-          />
+          <img class="scroll-item" :src="item.img" alt="" v-for="(item, idx) in dataScroll_3" :key="idx" />
         </div>
       </div>
     </div>
@@ -187,13 +187,14 @@ onMounted(() => {
 
   <RouterView /> -->
 
-  <WhatUGotView :whatUGot="whatUGot" :showWhatUGot="showWhatUGot" @ok-click="showWhatUGot= false" />
+  <WhatUGotView :whatUGot="whatUGot" :showWhatUGot="showWhatUGot" @ok-click="showWhatUGot = false" />
 </template>
 
 <style scoped lang="less">
 .container-main {
   text-align: center;
 }
+
 .game-box {
   // border: 1px solid rgba(0, 0, 0, 0.5);
   outline: 1px solid rgba(0, 0, 0, 0.5);
@@ -201,10 +202,12 @@ onMounted(() => {
   margin: 0 auto;
   position: relative;
 }
+
 .scroll-item {
   width: 100px;
   height: 100px;
 }
+
 .scroll-container-c {
   width: 100%;
   height: 100px;
@@ -222,6 +225,7 @@ onMounted(() => {
   height: 100px;
   width: max-content;
 }
+
 .center-box {
   position: absolute;
   width: 100px;
